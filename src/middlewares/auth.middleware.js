@@ -11,15 +11,21 @@ dotenv.config({})
 const verifyGithubJWT =
     AsyncHandler(async(req, res, next) =>
         {
+        let token, decodedToken=null
 
-        const token = req.cookies?.gh_accesstoken || req.header("Authorization")?.replace("Bearer ", "")
+        token = req.cookies?.gh_accesstoken || req.header("Authorization")?.replace("Bearer ", "")
 
-        if(!token){
-             return res.status(401).send()
-            // throw new ApiError(401, "Unauthorized request")
+        if(!token){return res.status(401).send()}
+        try{decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)}
+        catch{/* */}
+
+        if(!decodedToken){
+            token = req.cookies?.gh_refreshtoken
+            if(!token){return res.status(401).send()}
+
+            try{decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)}
+            catch{/* */}
         }
-
-        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
 
         const user = await GithubUser.findById(decodedToken?._id).select("-refreshtoken")
 
@@ -28,7 +34,7 @@ const verifyGithubJWT =
         }
 
         req.user = user
-
+        
         next()
         })
 
@@ -36,13 +42,22 @@ const verifyGithubJWT =
 const verifyJWT =
     AsyncHandler(async(req, res, next) =>
         {
-        const token = req.cookies?.accesstoken || req.header("Authorization")?.replace("Bearer ", "")
+        let token, decodedToken=null
 
-        if(!token){
-            return res.status(401).send()
+        token = req.cookies?.accesstoken || req.header("Authorization")?.replace("Bearer ", "")
+
+        if(!token){return res.status(401).send()}
+
+        try{decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)}
+        catch{/**/}
+
+         if(!decodedToken){
+            token = req.cookies?.refreshtoken
+            if(!token){return res.status(401).send()}
+
+            try{decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)}
+            catch{/* */}
         }
-
-        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
 
         const user = await User.findById(decodedToken?._id).select("-refreshtoken")
 
