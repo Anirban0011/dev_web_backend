@@ -9,7 +9,7 @@ import cloudUpload from "../utils/cloudinary.js"
 const options = {
         httpOnly: true,
         secure: true,
-        samesite : "none",
+        sameSite : "none",
         domain: ".anirbanbuilds.online"
     }
 
