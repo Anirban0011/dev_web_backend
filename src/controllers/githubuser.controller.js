@@ -9,7 +9,9 @@ dotenv.config({})
 
 const options = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite : "none",
+        domain: ".anirbanbuilds.online"
     }
 
 const genToken = async (userid) => {
