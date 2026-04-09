@@ -16,7 +16,7 @@ jobs:
           node-version: lts/*
       - run: npm install
       - run: npm run start:test &
-      - run: npx wait-on ${{vars.BASE_ENDPOINT}}
+      - run: npx wait-on ${{vars.BASE_ENDPOINT}} #wait for server restart
       - run: node tests/login.test.js
         env:
           BASE_URL: ${{vars.BASE_ENDPOINT}}
