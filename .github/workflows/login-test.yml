@@ -15,8 +15,10 @@ jobs:
         with:
           node-version: lts/*
       - run: npm install
-      - run: npm run start:test &
-      - run: npx wait-on ${{vars.BASE_ENDPOINT}} #wait for server restart
+      - run: |
+          echo "Waking up backend..."
+          curl --silent ${{ vars.BASE_ENDPOINT }} > /dev/null
+          sleep 60
       - run: node tests/login.test.js
         env:
           BASE_URL: ${{vars.BASE_ENDPOINT}}
