@@ -5,6 +5,7 @@ const FetchData = (path, payload, method='POST') =>{
 
     options.headers = {
     'Accept': 'application/json',
+    'Content-Type': 'application/json'
   }
 
   options.body = JSON.stringify(payload)
