@@ -15,9 +15,11 @@ jobs:
         with:
           node-version: lts/*
       - run: npm install
-      - run : npx wait-on ${{vars.BASE_URL}}
+      - run : npm run start &
+      - run : npm wait-on ${{ vars.BASE_URL }}
       - run: node tests/login.test.js
         env:
-          BASE_URL: ${{vars.BASE_ENDPOINT}}
+          BASE_URL: ${{vars.BASE_URL}}
+          API_VERSION : ${{ vars.API_VERSION}}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
