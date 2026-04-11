@@ -1,9 +1,7 @@
 name: Login Flow Test
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: [ "test/**" ]
 
 jobs:
   login-flow-test:
@@ -30,10 +28,43 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          base : master
+          filters: |
+            logic:
+              - '**/*.js'
+              - 'package.json'
+              - '.github/workflows/login-test.yml'
+      - if: steps.changes.outputs.logic == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - run: npm install
-      - run : npm run start &
-      - run : npx wait-on ${{ vars.BASE_URL }} # wait for backend server
-      - run: node tests/login.test.js
+      - if: steps.changes.outputs.logic == 'true'
+        run: |
+          npm install
+          npm run start &
+          npx wait-on ${{ vars.BASE_URL }} # wait for backend server
+          node tests/login.test.js
+
+  create-pr:
+    needs: login-flow-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_PR_TOKEN }}
+        run: |
+          gh pr create \
+            --title "Auto PR: ${{ github.ref_name }}" \
+            --body "Automated PR from ${{ github.ref_name }}" \
+            --base master \
+            --head ${{ github.ref_name }}
+          sleep 5
+          gh pr merge --auto --squash "${{ github.ref_name }}"
