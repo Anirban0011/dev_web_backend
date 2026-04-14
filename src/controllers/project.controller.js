@@ -125,7 +125,14 @@ const GetprojTitles = AsyncHandler(async(req, res)=>{
         json(new ApiResponse(
             400, {}, "No title provided"))
     }
-    const kres = await projectTitle.find({kword : {$regex : title}})
+
+     if (title.length > 100) {
+        return res.status(400).json(new ApiResponse(400, {}, "Search too long"))
+    }
+    // special characters to be taken as is not literally
+    const title_ = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+    const kres = await projectTitle.find({kword : {$regex : title_}})
     const projids = [...new Set(kres.flatMap(k=> k.kmap))]
     const projs = await ProjectCard.find({_id : {$in : projids}})
 
