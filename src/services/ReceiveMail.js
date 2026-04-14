@@ -3,7 +3,7 @@ import { MAIL_ID } from "../constants.js"
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const forwardMail = async(payload)=>{
-    const emailid = payload?.emailid
+    const emailid = payload?.email_id
     const {data : received, error} = await resend.emails.receiving.get(emailid)
 
     if (error) {
