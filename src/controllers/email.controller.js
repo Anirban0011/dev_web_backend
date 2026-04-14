@@ -5,7 +5,8 @@ import ApiResponse from "../utils/ApiResponse.js"
 import { OK } from "../constants.js"
 
 const handleInboxMail = Asynchandler(async(req, res)=>{
-    const { from, subject, text } = req.body
+     const { data } = req.body
+     const { from, subject, text } = data || {}
     if (!from) {
     throw new ApiError(400, "Missing sender email")
     }
