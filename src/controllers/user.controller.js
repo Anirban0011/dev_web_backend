@@ -7,7 +7,7 @@ import crypto from "node:crypto"
 import {v2 as cloudinary} from "cloudinary"
 import cloudUpload from "../utils/cloudinary.js"
 import {sendResetEmail,
-        sendOTPEmail} from "../utils/ResetPwdMail.js"
+        sendOTPEmail} from "../utils/SendMail.js"
 
 const options = {
         httpOnly: true,

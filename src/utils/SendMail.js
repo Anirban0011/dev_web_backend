@@ -1,6 +1,5 @@
 import {Resend} from "resend"
 
-
 const get_API_KEY = () => {
   return new Resend(process.env.RESEND_API_KEY)
 }

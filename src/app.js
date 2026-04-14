@@ -2,8 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import projectsRoutes from '../src/routes/projects.routes.js'
+import emailRoutes from './routes/email.routes.js'
 import UserRoutes from './routes/users.routes.js'
-
 const app = express()
 
 app.use(cors({
@@ -21,6 +21,7 @@ app.use(cookieParser())
 
 app.use(`/api/${process.env.API_VERSION}/projects`, projectsRoutes)
 app.use(`/api/${process.env.API_VERSION}/users`, UserRoutes)
+app.use(`/api/${process.env.API_VERSION}/emails`, emailRoutes)
 
 app.get("/", (req, res) => {
   res.send("Backend is Live 🚀")
