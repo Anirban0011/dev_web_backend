@@ -3,7 +3,7 @@ import ApiError from "../utils/ApiError.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import {GithubUser} from "../models/githubuser.model.js"
 import { OK } from "../constants.js"
-import { sendOTPEmail } from "../utils/ResetPwdMail.js"
+import { sendOTPEmail } from "../utils/SendMail.js"
 
 const options = {
         httpOnly: true,
