@@ -6,7 +6,7 @@ const forwardMail = async({from, subject, text})=>{
     await resend.emails.send({
         from: "Anirban Builds <contact@anirbanbuilds.online>",
         to : MAIL_ID,
-        sub : `email from ${from}`,
+        subject : `email from ${from}`,
         html: `
         <div style="font-family:sans-serif;">
             <h2>New Incoming Email</h2>
