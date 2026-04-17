@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "tunnel": "ngrok http 8000 --domain=widget-flashbulb-wobbly.ngrok-free.dev"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -19,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
     "multer": "^2.0.2",
+    "ngrok": "^5.0.0-beta.2",
     "node-fetch": "^3.3.2",
     "resend": "^6.10.0"
   },

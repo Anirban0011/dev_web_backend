@@ -6,29 +6,28 @@ const forwardMail = async(payload)=>{
     const emailid = payload?.email_id
     const {data : received} = await resend.emails.receiving.get(emailid)
 
+    const mode = process.env.APP_MODE === 'local' ? '[TEST] ' : ''
+
     const contentHtml = received.html || `<div style="white-space: pre-wrap;">${received.text}</div>`
 
     await resend.emails.send({
-        from: "Anirban Builds <contact@anirbanbuilds.online>",
+        from: "Anirban Builds <contact-dev@anirbanbuilds.online>",
         to : MAIL_ID,
-        subject : `${received.subject || payload.subject || "New Message"}`,
+        subject : `${mode}${received.subject || payload.subject || "New Message"}`,
         html: `
-        <div style="font-family:sans-serif;line-height:1.6;">
-            <hr/>
-            <p><strong>From:</strong> ${received.from}</p>
-           <div class="gmail_quote">
-                <blockquote style="margin:0 0 0 0.8ex; border-left:1px #ccc solid; padding-left:1ex;">
+        <div style="font-family:sans-serif;line-height:1.6;color:#000;">
+        <p><strong>From:</strong> ${received.from}</p>
 
-                    <p style="color:#777;">--- Original Message ---</p>
-
-                    <div style="color:#222;">
-                        ${contentHtml}
-                    </div>
-
+        <details>
+            <div class="gmail_quote" style="font-family:sans-serif;">
+                    ${contentHtml}
                 </blockquote>
             </div>
+        </details>
+        <div style="font-size: 10px; color: #bdc1c6; margin-top: 30px;">
+            Sent via ${mode ? 'Dev' : 'Prod'} Pipeline
         </div>
-        `
+        </div>`
     })
 }
 
