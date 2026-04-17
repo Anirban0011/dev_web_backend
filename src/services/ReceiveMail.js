@@ -11,7 +11,7 @@ const forwardMail = async(payload)=>{
     const contentHtml = received.html || `<div style="white-space: pre-wrap;">${received.text}</div>`
 
     await resend.emails.send({
-        from: "Anirban Builds <contact-dev@anirbanbuilds.online>",
+        from: "Anirban Builds <contact@anirbanbuilds.online>",
         to : MAIL_ID,
         subject : `${mode}${received.subject || payload.subject || "New Message"}`,
         html: `
