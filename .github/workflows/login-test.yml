@@ -7,6 +7,8 @@ jobs:
   login-flow-test:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    permissions:
+        contents: write
     env:
           API_VERSION: ${{ vars.API_VERSION }}
           BASE_URL: ${{ vars.BASE_URL }}
@@ -48,7 +50,9 @@ jobs:
           npx wait-on ${{ vars.BASE_URL }} # wait for backend server
           node tests/login.test.js
       - if: failure()
-        run: git push origin --delete ${{ github.ref_name }}
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/${{ github.ref_name }}
 
   create-pr:
     needs: login-flow-test
