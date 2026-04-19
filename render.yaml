@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: dev-web-backend
+    envVars:
+        sync: false
+      - fromGroup: preview
