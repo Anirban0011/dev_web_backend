@@ -3,11 +3,9 @@ services:
     name: dev-web-backend
     runtime: node
     buildCommand: npm install && npm run build
-    startCommand: npm start
-    # This is the correct way to override the command for PRs
-    previews:
-      startCommand: npm run dev
+    startCommand: npm run dev
     envVars:
       - fromGroup: preview
       - key: APP_MODE
+        value: production
         previewValue: dev
