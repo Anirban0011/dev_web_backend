@@ -72,5 +72,5 @@ jobs:
             --body "Automated PR from ${{ github.ref_name }}" \
             --base master \
             --head ${{ github.ref_name }}
-          sleep 5
+          sleep 300
           gh pr merge --auto --squash "${{ github.ref_name }}"
