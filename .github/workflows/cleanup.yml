@@ -1,0 +1,16 @@
+name: Cleanup PR Environments
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete GitHub Environment
+        run: |
+          gh api -X DELETE \
+            /repos/${{ github.repository }}/environments/test%2F${{ github.head_ref }}
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
