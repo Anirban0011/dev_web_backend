@@ -54,23 +54,23 @@ jobs:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/${{ github.ref_name }}
 
-  # create-pr:
-  #   needs: login-flow-test
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #     pull-requests: write
-  #   if: success()
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Create Pull Request
-  #       env:
-  #         GH_TOKEN: ${{ secrets.AUTO_PR_TOKEN }}
-  #       run: |
-  #         gh pr create \
-  #           --title "Auto PR: ${{ github.ref_name }}" \
-  #           --body "Automated PR from ${{ github.ref_name }}" \
-  #           --base master \
-  #           --head ${{ github.ref_name }}
-  #         sleep 5
-  #         gh pr merge --auto --squash "${{ github.ref_name }}"
+  create-pr:
+    needs: login-flow-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_PR_TOKEN }}
+        run: |
+          gh pr create \
+            --title "Auto PR: ${{ github.ref_name }}" \
+            --body "Automated PR from ${{ github.ref_name }}" \
+            --base master \
+            --head ${{ github.ref_name }}
+          sleep 5
+          gh pr merge --auto --squash "${{ github.ref_name }}"
