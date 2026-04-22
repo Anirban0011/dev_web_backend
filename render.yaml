@@ -4,3 +4,5 @@ services:
     previews:
       envVars:
         - fromGroup: preview
+        - key: APP_MODE
+          value: dev
