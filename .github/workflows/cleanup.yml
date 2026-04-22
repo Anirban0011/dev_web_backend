@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Delete GitHub Environment
         run: |
-          echo "REF: ${{ github.event.ref }}"
-          echo "REF TYPE: ${{ github.event.ref_type }}"
-          gh api /repos/${{ github.repository }}/environments
+          ENV_NAME="${{ github.head_ref }} - ${{ github.event.repository.name }} PR #${{ github.event.number }}"
+          ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$ENV_NAME', safe=''))")
+          gh api -X DELETE /repos/${{ github.repository }}/environments/$ENCODED
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
