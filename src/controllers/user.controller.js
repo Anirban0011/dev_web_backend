@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js"
 import AsyncHandler from "../utils/AsyncHandler.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import ApiError from "../utils/ApiError.js"
-import { OK } from "../constants.js"
+import { OK, MODE } from "../constants.js"
 import crypto from "node:crypto"
 import {v2 as cloudinary} from "cloudinary"
 import cloudUpload from "../utils/cloudinary.js"
@@ -33,7 +33,7 @@ const registerUser = AsyncHandler(async(req, res)=>{
             throw new ApiError(400, "Cover Image is required !")
         }
 
-    const coverImage = await cloudUpload(coverImagePath, "users/normaluser")
+    const coverImage = await cloudUpload(coverImagePath, `${MODE}/users/normaluser`)
 
      if(!coverImage){
         throw new ApiError(400, "Image failed to upload on cloudinary")
@@ -193,7 +193,8 @@ const updateCoverImage = AsyncHandler(async(req, res) => {
         const filename = parts[parts.length - 1].split(".")[0]
         const folder = parts[parts.length - 2] // normaluser
         const parent = parts[parts.length - 3] // users
-        const fileid = `${parent}/${folder}/${filename}`
+        const mode = parts[parts.length - 4] // mode
+        const fileid = `${mode}/${parent}/${folder}/${filename}`
         const res = await cloudinary.uploader.destroy(fileid)
 
         if(res.result !== "ok" && res.result !== "not found"){
@@ -201,7 +202,7 @@ const updateCoverImage = AsyncHandler(async(req, res) => {
         }
     }
 
-    const coverImage = await cloudUpload(coverImageLocalPath, "users/normaluser")
+    const coverImage = await cloudUpload(coverImageLocalPath, `${MODE}/users/normaluser`)
 
     if (!coverImage.url) {
         throw new ApiError(400, "Error while uploading cover image")
@@ -412,7 +413,8 @@ const deleteUser = AsyncHandler(async(req, res)=>{
     const filename = parts[parts.length - 1].split(".")[0]
     const folder = parts[parts.length - 2] // normaluser
     const parent = parts[parts.length - 3] // users
-    const fileid = `${parent}/${folder}/${filename}`
+    const mode = parts[parts.length - 4] // mode
+    const fileid = `${mode}/${parent}/${folder}/${filename}`
     const res_i = await cloudinary.uploader.destroy(fileid)
 
     if(res_i.result !== "ok" && res_i.result !== "not found"){

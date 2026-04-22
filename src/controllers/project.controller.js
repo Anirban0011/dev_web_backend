@@ -3,7 +3,7 @@ import AsyncHandler from '../utils/AsyncHandler.js'
 import ApiError from "../utils/ApiError.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import cloudUpload from "../utils/cloudinary.js"
-import { OK } from "../constants.js"
+import { OK, MODE } from "../constants.js"
 
 const Addproject = AsyncHandler(async (req, res) => {
 
@@ -13,7 +13,7 @@ const Addproject = AsyncHandler(async (req, res) => {
         throw new ApiError(400, "Project cover Image is required !")
     }
 
-    const projImage = await cloudUpload(projImagePath, "projects")
+    const projImage = await cloudUpload(projImagePath, `${MODE}/projects`)
 
     if(!projImage){
         throw new ApiError(400, "Image failed to upload on cloudinary")
