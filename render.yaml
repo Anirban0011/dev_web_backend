@@ -1,8 +1,7 @@
 services:
   - type: web
     name: dev-web-backend
-    previews:
-      envVars:
-        - fromGroup: preview
-        - key: APP_MODE
-          value: dev
+    envVars:
+      - fromGroup: preview
+      - key: APP_MODE
+        previewValue: dev
