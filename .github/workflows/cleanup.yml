@@ -11,6 +11,6 @@ jobs:
       - name: Delete GitHub Environment
         run: |
           gh api -X DELETE \
-            /repos/${{ github.repository }}/environments/test%2F${{ github.head_ref }}
+            /repos/${{ github.repository }}/environments/${{ github.event.ref }}
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
