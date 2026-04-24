@@ -4,7 +4,8 @@ const projectCardSchema = new Schema({
     image : {type: String, required : true}, // cloudinary URL is stored
     title : {type: String, required: true},
     tags : {type: [String], required: true},
-    repo : {type : [String], required : true}
+    repo : {type : String, required : true}, // git repo link
+    deploy : {type : String, required : true} // hf space link
 }, { versionKey: false })
 
 const projectTitleSchema = new Schema({

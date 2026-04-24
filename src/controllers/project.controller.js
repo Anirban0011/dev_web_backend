@@ -7,6 +7,10 @@ import { OK, MODE } from "../constants.js"
 
 const Addproject = AsyncHandler(async (req, res) => {
 
+    if(!req.user?.masteruser){
+        throw new ApiError(403, "Unauthorized Access")
+    }
+
     const projImagePath = req.file?.path
 
     if(!projImagePath){
@@ -19,13 +23,14 @@ const Addproject = AsyncHandler(async (req, res) => {
         throw new ApiError(400, "Image failed to upload on cloudinary")
     }
 
-    const {projTitle, projRepo, selectedTags} = req.body
+    const {projTitle, projRepo, projHost, selectedTags} = req.body
     const tags = JSON.parse(selectedTags)
     const projectcard = await ProjectCard.create({
         image : projImage.url, //url
         title : projTitle,
-        repo : projRepo,
-        tags : tags
+        repo : projRepo, //git
+        deploy: projHost, // hf
+        tags : tags,
     })
 
     if(!projectcard){
@@ -69,7 +74,7 @@ const Addproject = AsyncHandler(async (req, res) => {
         }
         else{
             tres = await ProjectTags.findByIdAndUpdate(
-                tags[i]._id,
+                tagExist._id,
                 {$addToSet : {tmap : projectcard._id}},
                 {new : true}
             )}
@@ -129,7 +134,7 @@ const GetprojTitles = AsyncHandler(async(req, res)=>{
      if (title.length > 100) {
         return res.status(400).json(new ApiResponse(400, {}, "Search too long"))
     }
-    // special characters to be taken as is not literally
+    // santization
     const title_ = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
     const kres = await projectTitle.find({kword : {$regex : title_}})
@@ -144,4 +149,58 @@ const GetprojTitles = AsyncHandler(async(req, res)=>{
     )
 })
 
-export {Addproject, Getprojects, GetprojTitles}
+const Deleteproject = AsyncHandler(async (req, res)=>{
+
+    if(!req.user?.masteruser){
+        throw new ApiError(403, "Unauthorized Access")
+    }
+
+    const { projId, projTitle, projTags } = req.body
+    const tags = JSON.parse(projTags)
+
+    console.log("projId:", projId)
+    console.log("projTitle:", projTitle)
+    console.log("tags:", tags)
+    const projDelete = await ProjectCard.findByIdAndDelete(projId)
+    if(!projDelete){
+        throw new ApiError(400, "Failed to delete project")
+    }
+    // console.log("projDelete:", projDelete)
+    console.log("project deleted")
+
+    const kwords = projTitle.split(" ") // list of title words
+    for (let i = 0; i < kwords.length; i++) {
+        let prefix = []
+        for (let j = i; j < kwords.length; j++) {
+            prefix.push(kwords[j].toLowerCase())
+            await projectTitle.findOneAndUpdate(
+                { kword: prefix.join(" ") },
+                { $pull: { kmap: projId } }
+            )
+        }
+    }
+    await projectTitle.deleteMany({ kmap: { $size: 0 } })
+    console.log("project keywords removed")
+
+    for (let i = 0; i < tags.length; i++) {
+        await ProjectTags.findOneAndUpdate(
+            { tag: tags[i] },
+            { $pull: { tmap: projId } }
+        )
+    }
+    console.log("project tags removed")
+
+    return res.status(OK).json(
+        new ApiResponse(
+            OK,
+            {},
+            "Project deleted successfully"
+        ))
+})
+
+export {
+    Addproject,
+    Getprojects,
+    GetprojTitles,
+    Deleteproject
+}
