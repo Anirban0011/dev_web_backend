@@ -4,10 +4,10 @@ function ship($branch, $message) {
     git commit -m $message
     git push origin $branch
     git checkout master
-    git merge $branch
+    git merge $branch --no-edit
     git branch -D $branch
 
-    $currentBranch = git branch --show-current
-    Write-Host "$currentBranch  updated ✅" -ForegroundColor Green
+    $current = $(git branch --show-current)
+    Write-Host "`n$current updated locally ✅" -ForegroundColor Green
     Write-Host " 🚀 Deployment initiated! " -ForegroundColor Cyan
 }
