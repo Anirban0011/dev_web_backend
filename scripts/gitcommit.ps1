@@ -35,7 +35,7 @@ function ship($name, $msg) {
                 break
             }
         }
-        Start-Sleep -s 5
+        Start-Sleep -s 6
         $dotCount++
     }
 }}
