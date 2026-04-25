@@ -12,7 +12,7 @@ function ship($name, $msg) {
     $attempts = 0
     $dotCount = 0
 
-    Write-Host "Just once"
+    Write-Host "Just once to test"
 
     while (-not $merged) {
         $attempts++
