@@ -8,6 +8,7 @@ function ship($branch, $message) {
     git branch -D $branch
 
     $current = $(git branch --show-current)
+    
     Write-Host "`n$current updated locally ✅" -ForegroundColor Green
     Write-Host " 🚀 Deployment initiated! " -ForegroundColor Cyan
 }
