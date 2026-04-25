@@ -7,7 +7,7 @@ function ship($name, $msg) {
     git checkout master
     git branch -D $name
 
-    Write-Host "Push Successfull 🚀" -ForegroundColor Green -BackgroundColor White
+    Write-Host "Push Successfull 🚀" -ForegroundColor Green
     $merged = $false
     $attempts = 0
     $dotCount = 0
@@ -19,7 +19,7 @@ function ship($name, $msg) {
 
         Write-Host "`rChecking for remote update$dots$padding" -ForegroundColor Yellow -NoNewline
 
-        if ($attempts % 15 -eq 0) {
+        if ($attempts % 25 -eq 0) {
         git fetch origin master --quiet
 
         $localRev = git rev-parse master
@@ -30,12 +30,12 @@ function ship($name, $msg) {
             Write-Host "✅ Local master synced " -ForegroundColor Green
             $merged = $true
         } else {
-            if ($attempts -gt 300) {
-                Write-Host "❌ GitHub Timeout " -ForegroundColor Red
+            if ($attempts -gt 500) {
+                Write-Host "❌ GitHub Timeout ⌛" -ForegroundColor Red
                 break
             }
         }
-        Start-Sleep -Milliseconds 200
+        Start-Sleep -Milliseconds 100
         $dotCount++
     }
 }}
