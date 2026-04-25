@@ -4,8 +4,7 @@ function ship($branch, $message) {
     git commit -m $message
     git push origin $branch
     git checkout master
-    Write-Host "--- Attempting Merge ---" -ForegroundColor Yellow
-    git merge "$branch" --no-ff -m "Local merge of $branch"
+    git merge $branch --no-ff -m "Merging $branch"
     git status
     git branch -D $branch
 
