@@ -17,7 +17,6 @@ for(const proj of oldProjects){
     })
     console.log("Migrated:", proj._id)
 }
-// 
 
 console.log("Done")
 await mongoose.disconnect()
