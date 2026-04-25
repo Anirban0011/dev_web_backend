@@ -4,11 +4,12 @@ function ship($branch, $message) {
     git commit -m $message
     git push origin $branch
     git checkout master
-    git merge $branch --no-edit
+    Write-Host "--- Attempting Merge ---" -ForegroundColor Yellow
+    git merge $branch --no-ff -m
+    git status
     git branch -D $branch
 
     $current = $(git branch --show-current)
-    
     Write-Host "`n$current updated locally ✅" -ForegroundColor Green
     Write-Host " 🚀 Deployment initiated! " -ForegroundColor Cyan
 }
