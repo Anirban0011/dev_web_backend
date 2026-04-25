@@ -17,7 +17,7 @@ function ship($name, $msg) {
         $dots = "." * ($dotCount % 4)
         $padding = " " * (3 - ($dotCount % 4))
 
-        Write-Host "`rChecking for remote update$dots$padding (Attempt: $attempts)" -ForegroundColor Yellow -NoNewline
+        Write-Host "`rChecking for remote update$dots$padding" -ForegroundColor Yellow -NoNewline
 
         if ($attempts % 3 -eq 0) {
         git fetch origin master --quiet
@@ -35,7 +35,7 @@ function ship($name, $msg) {
                 break
             }
         }
-        Start-Sleep -s 1
+        Start-Sleep -s 5
         $dotCount++
     }
 }}
