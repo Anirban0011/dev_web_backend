@@ -3,6 +3,8 @@ import ApiError from "../utils/ApiError.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import {GithubUser} from "../models/githubuser.model.js"
 import { OK } from "../constants.js"
+import mongoose from "mongoose"
+import { User } from "../models/user.model.js"
 import { sendOTPEmail } from "../utils/SendMail.js"
 import { encryptfunc, decryptfunc } from "../utils/TokenCrypto.js"
 
@@ -103,7 +105,7 @@ const params = "?client_id=" + payload.client_id +
             oldUser : false,
             firstload : true,
             usertype : createdUser.usertype,
-            repolist : createdUser.starred_repo
+            repolist : []
         },
         "Github user sign up success"
     ))
@@ -111,6 +113,10 @@ const params = "?client_id=" + payload.client_id +
 
     // already github logged
     else{
+
+        await GithubUser.findByIdAndUpdate(userExists._id, {
+        githubToken: encryptedToken
+    })
     const oldUser = await GithubUser.findById(userExists._id)
     .select("-refreshtoken -githubToken -otp")
     const {access_token, refresh_token} = await genToken(oldUser._id)
@@ -238,27 +244,52 @@ const SendOTPGithubUser = AsyncHandler(async(req, res)=>{
 })
 
 const StarRepoGithubUser = AsyncHandler(async(req, res)=>{
-   const { owner, repo, projId } = req.body
+    const { owner, repo, projId } = req.body
+    let user, normaluser
+    user = await GithubUser.findById(req.user._id)
+    if(!user){
+        normaluser = await User.findById(req.user._id)
+        if(!normaluser) throw new ApiError(400, "No Valid User found")
+    }
+    if(!user)
+    user = await GithubUser.findOne({ghEmail : normaluser.ghEmail})
 
-    const user = await GithubUser.findById(req.user._id)
-    const isStarred = user.starred_repo.includes(projId)
+    if(!normaluser)
+    normaluser = await User.findOne({ghEmail : user.ghEmail})
+
+    const pid = new mongoose.Types.ObjectId(projId)
+    const isStarred = user.starred_repo.some(id => id.equals(pid))
     // if repo exists request is for unstaring
 
     const token = decryptfunc(user.githubToken)
 
-    await fetch(`https://api.github.com/user/starred/${owner}/${repo}`, {
+     const githubRes = await fetch(`https://api.github.com/user/starred/${owner}/${repo}`, {
         method: isStarred ? 'DELETE' : 'PUT',
         headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Length': '0'
+            'Content-Length': '0',
+             'X-GitHub-Api-Version': '2022-11-28'
         }
     })
 
-    await GithubUser.findByIdAndUpdate(req.user._id,
+    if(!githubRes.ok){
+        throw new ApiError(400, "Github Api Failure")
+    }
+
+    await GithubUser.findByIdAndUpdate(user._id,
         isStarred
-        ? { $pull: { starred_repo: projId } }
-        : { $addToSet: { starred_repo: projId } }
+        ? { $pull: { starred_repo: pid } }
+        : { $addToSet: { starred_repo: pid } }
     )
+
+    if(normaluser){
+        await User.findByIdAndUpdate(normaluser._id,
+            isStarred
+            ? { $pull: { repolist : pid } }
+            : { $addToSet: { repolist: pid } },
+            { strict: false }
+        )
+    }
 
     return res
     .status(OK)

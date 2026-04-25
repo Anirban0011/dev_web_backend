@@ -22,7 +22,7 @@ import {
     SendOTPUser,
     VerifyResetTokenExpiry
     } from "../controllers/user.controller.js"
-import { verifyGithubJWT, verifyJWT } from "../middlewares/auth.middleware.js"
+import { verifyGithubJWT, verifyJWT, verifyAnyJWT } from "../middlewares/auth.middleware.js"
 import { upload } from "../middlewares/multer.middleware.js"
 const UserRouter = Router()
 
@@ -46,6 +46,6 @@ UserRouter.route('/usr-otp').post(verifyJWT, SendOTPUser)
 UserRouter.route('/ghusr-otp').post(verifyGithubJWT, SendOTPGithubUser)
 UserRouter.route('/verify-token').post(VerifyResetTokenExpiry)
 UserRouter.route('/update-cover-image').patch(verifyJWT, upload.single("coverimage"), updateCoverImage)
-UserRouter.route('/star-repo').post(verifyGithubJWT, StarRepoGithubUser)
+UserRouter.route('/star-repo').post(verifyAnyJWT, StarRepoGithubUser)
 
 export default UserRouter

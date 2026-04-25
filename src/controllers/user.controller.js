@@ -139,6 +139,8 @@ const loginUser = AsyncHandler(async(req, res) => {
 })
 
 const getCurrentUser = AsyncHandler( async(req, res) =>{
+    const user = await User.findById(req.user._id).lean()
+    
      return res
     .status(OK)
     .json(new ApiResponse(
@@ -154,7 +156,7 @@ const getCurrentUser = AsyncHandler( async(req, res) =>{
             ghEmail : req.user.ghEmail,
             usertype : req.user.usertype,
             avatar : req.user.avatar,
-            repolist : req.user.repolist
+            repolist : user.repolist
         },
         "User fetched successfully"
     ))
@@ -282,12 +284,14 @@ const updatePassword = AsyncHandler(async(req, res) => {
 const LinkGithubUser = AsyncHandler(async(req, res)=>{
 
     const {email, ghEmail, avatar} = req.body
+    const curgithubuser = await GithubUser.findOne({ghEmail: ghEmail})
 
     const curUser = await User.updateOne(
                             {email : email},
                             {$set: {
                                 ghEmail: ghEmail,
                                 avatar : avatar,
+                                repolist : curgithubuser.starred_repo,
                                 "usertype.1" : true }},
                             {strict: false}
                             )
@@ -312,6 +316,7 @@ const UnLinkGithubUser = AsyncHandler(async(req, res)=>{
                             {email : email},
                             {$set: { ghEmail: "",
                                      avatar : "",
+                                     repolist : [],
                                      "usertype.1" : false }}
                             )
     if(curUser.modifiedCount!==1){
