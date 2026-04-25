@@ -12,6 +12,8 @@ function ship($name, $msg) {
     $attempts = 0
     $dotCount = 0
 
+    Write-Host "Just once"
+
     while (-not $merged) {
         $attempts++
         $dots = "." * ($dotCount % 4)
