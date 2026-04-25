@@ -1,29 +1,29 @@
-function ship($branch, $message) {
-    # 1. Standard Push
-    git checkout -b $branch
-    git add -A
-    git commit -m $message
-    git push origin $branch
+function ship($name, $msg) {
+    # 1. Capture the branch name clearly
+    $targetBranch = $name
 
-    # 2. Switch
+    # 2. Create, Add, Commit, Push
+    git checkout -b $targetBranch
+    git add -A
+    git commit -m $msg
+    git push origin $targetBranch
+
+    # 3. Switch to master
     git checkout master
 
-    # 3. THE "STAY ALIVE" MERGE
-    # We use -f to force PowerShell to treat this as a single execution block
-    & {
-        Write-Host "--- Attempting Merge of $branch ---" -ForegroundColor Yellow
-        git merge "$branch" --no-ff -m "Local merge of $branch"
+    # 4. THE FIX: Explicitly call the merge using the local variable
+    Write-Host "--- CRITICAL: Merging $targetBranch into Master ---" -ForegroundColor Yellow
+    git merge $targetBranch --no-ff -m "Merge: $msg"
 
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "Merge Successful. Deleting ghost branch..." -ForegroundColor Gray
-            git branch -D "$branch"
-        } else {
-            Write-Host "❌ Merge failed! Keeping branch for safety." -ForegroundColor Red
-        }
+    # 5. VERIFY: Only delete if the merge actually happened
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Success! Cleaning up branch." -ForegroundColor Gray
+        git branch -D $targetBranch
+    } else {
+        Write-Host "❌ MERGE FAILED. Code is still in $targetBranch." -ForegroundColor Red
     }
 
-    # 4. Final Print
-    $current = $(git branch --show-current).Trim()
+    $current = $(git branch --show-current)
     Write-Host "`n$current updated locally ✅" -ForegroundColor Green
     Write-Host " 🚀 Deployment initiated! " -ForegroundColor Cyan
 }
