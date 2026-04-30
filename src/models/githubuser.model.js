@@ -23,7 +23,8 @@ const GithubUserSchema = new Schema({
     otp: {type: String},
     otpExpiry: {type: Date},
     githubToken : {type: String, default:"" },
-    starred_repo : {type : [mongoose.Schema.Types.ObjectId]}
+    starred_repo : {type : [mongoose.Schema.Types.ObjectId]},
+    forked_repo : {type : [mongoose.Schema.Types.ObjectId]}
 }, { versionKey: false })
 
 

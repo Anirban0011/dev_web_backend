@@ -105,7 +105,8 @@ const params = "?client_id=" + payload.client_id +
             oldUser : false,
             firstload : true,
             usertype : createdUser.usertype,
-            repolist : []
+            repolist : [],
+            forklist : []
         },
         "Github user sign up success"
     ))
@@ -137,7 +138,8 @@ const params = "?client_id=" + payload.client_id +
             userExists : true,
             firstload : true,
             usertype : oldUser.usertype,
-            repolist : oldUser.starred_repo
+            repolist : oldUser.starred_repo,
+            forklist : oldUser.forked_repo
         },
         "Github login success"
     ))
@@ -160,7 +162,8 @@ const GithubCurrentUser = AsyncHandler(async(req, res) =>{
             githubuser : true,
             firstload : false,
             usertype : req.user.usertype,
-            repolist : req.user.repolist
+            repolist : req.user.repolist,
+            forklist : req.user.forklist
         },
         "User fetched successfully"
     ))
@@ -301,9 +304,82 @@ const StarRepoGithubUser = AsyncHandler(async(req, res)=>{
 
 })
 
+const ForkRepoGithubUser = AsyncHandler(async(req, res)=>{
+    const {owner, repo, projId } = req.body
+    let user, normaluser
+    user = await GithubUser.findById(req.user._id) // github user ONLY
+    if(!user){
+        normaluser = await User.findById(req.user._id)
+        if(!normaluser) throw new ApiError(400, "No Valid User found")
+    }
+    if(!user)
+    user = await GithubUser.findOne({ghEmail : normaluser.ghEmail})
+
+    if(!normaluser)
+    normaluser = await User.findOne({ghEmail : user.ghEmail})
+
+    const pid = new mongoose.Types.ObjectId(projId)
+    const isForked = user.forked_repo.some(id => id.equals(pid))
+    // if repo exists request is for DELETING
+
+    const token = decryptfunc(user.githubToken)
+
+    let githubRes
+
+    if(isForked){
+        githubRes = await fetch(`https://api.github.com/repos/${user.username}/${repo}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Length': '0',
+            'X-GitHub-Api-Version': '2022-11-28'
+        }
+    })
+}
+    else{
+        githubRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/forks`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'X-GitHub-Api-Version': '2022-11-28'
+        },
+        body : JSON.stringify({})
+    })
+}
+
+ if(!githubRes.ok){
+        throw new ApiError(400, "Github Api Failure")
+    }
+
+     await GithubUser.findByIdAndUpdate(user._id,
+        isForked
+        ? { $pull: { forked_repo: pid } }
+        : { $addToSet: { forked_repo: pid } }
+    )
+
+    if(normaluser){
+        await User.findByIdAndUpdate(normaluser._id,
+            isForked
+            ? { $pull: { forklist : pid } }
+            : { $addToSet: { forklist: pid } },
+            { strict: false }
+        )
+    }
+    return res
+    .status(OK)
+    .json(
+    new ApiResponse(
+    OK,
+    {isForked:!isForked },
+    `Repo ${isForked ? "deleted" : "forked"} succesfully`))
+
+})
+
 export {GithubLogin,
         GithubCurrentUser,
         LogoutGithubUser,
         deleteGithubUser,
         SendOTPGithubUser,
-        StarRepoGithubUser}
+        StarRepoGithubUser,
+        ForkRepoGithubUser}
