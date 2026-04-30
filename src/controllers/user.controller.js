@@ -131,7 +131,8 @@ const loginUser = AsyncHandler(async(req, res) => {
                 ghEmail : oldUser.ghEmail,
                 usertype : oldUser.usertype,
                 avatar : oldUser.avatar,
-                repolist : linkedUser? linkedUser.starred_repo : []
+                repolist : linkedUser? linkedUser.starred_repo : [],
+                forklist : linkedUser? linkedUser.forked_repo :[]
             },
             "User logged In Successfully"
         )
@@ -140,7 +141,7 @@ const loginUser = AsyncHandler(async(req, res) => {
 
 const getCurrentUser = AsyncHandler( async(req, res) =>{
     const user = await User.findById(req.user._id).lean()
-    
+
      return res
     .status(OK)
     .json(new ApiResponse(
@@ -156,7 +157,8 @@ const getCurrentUser = AsyncHandler( async(req, res) =>{
             ghEmail : req.user.ghEmail,
             usertype : req.user.usertype,
             avatar : req.user.avatar,
-            repolist : user.repolist
+            repolist : user.repolist,
+            forklist : user.forklist
         },
         "User fetched successfully"
     ))
@@ -292,6 +294,7 @@ const LinkGithubUser = AsyncHandler(async(req, res)=>{
                                 ghEmail: ghEmail,
                                 avatar : avatar,
                                 repolist : curgithubuser.starred_repo,
+                                forklist : curgithubuser.forked_repo,
                                 "usertype.1" : true }},
                             {strict: false}
                             )
@@ -317,6 +320,7 @@ const UnLinkGithubUser = AsyncHandler(async(req, res)=>{
                             {$set: { ghEmail: "",
                                      avatar : "",
                                      repolist : [],
+                                     forklist : [],
                                      "usertype.1" : false }}
                             )
     if(curUser.modifiedCount!==1){
